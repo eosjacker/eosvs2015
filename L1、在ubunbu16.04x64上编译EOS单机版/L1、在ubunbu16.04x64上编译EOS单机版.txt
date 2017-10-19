@@ -1,0 +1,13 @@
+L1、在 ubunbu16.04x64 上编译 EOS 单机版
+
+作者：EOSJacker
+时间：2017.08.02
+
+我是根据这边文章编译成功的：
+https://steemit.com/eoskorea/@clayop/eos-build-guide-on-ubunbu
+
+注意事项：
+Ubuntu16.04x64，必须是 64 位的，不然 llvm 编译之后不能用。
+我用 32 位的 Ubuntu14 升级到 Ubuntu16 不行。重新下载了个新的 Ubuntu16.04x64 编译成功了。
+gmp 库需要安装。
+

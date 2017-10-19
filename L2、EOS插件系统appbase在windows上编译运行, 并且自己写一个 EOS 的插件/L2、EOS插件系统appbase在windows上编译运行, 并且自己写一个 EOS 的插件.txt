@@ -1,0 +1,277 @@
+2017.08.04
+
+L2、EOS插件系统appbase在windows上编译运行, 并且自己写一个 EOS 的插件
+
+0、vs2015源代码工程说明：
+vs2015工程目录：\appbase-master\Build\AppBase.sln
+先编译项目 appbase 生成 appbase.lib，然后编译运行 eosd 进行动态调试。
+这个工程是我第一次生成的工程，里面是按照绝对路径设置，我的本地路径：
+D:\myworkcode\EOS\lib\appbase-master
+生成的可执行目录：
+\appbase-master\Build\examples\Debug\eosd.exe
+
+1、EOS插件库：appbase
+\eos\libraries\appbase\include\appbase\application.hpp
+
+2、实现功能：
+插件的注册，启动，运行，退出。
+
+3、如何实现一个新的插件
+
+EOS提供了一个插件模板，按照这个模块来实现自己的插件。
+\eos\plugins\template_plugin\include\eos\template_plugin\template_plugin.hpp
+
+
+4、EOS已经实现的插件：
+
+eos\programs\eosd\main.cpp
+在 eosd 里，注册了5个插件：
+
+      app().register_plugin<net_plugin>();
+      app().register_plugin<chain_api_plugin>();
+      app().register_plugin<http_plugin>();
+      app().register_plugin<producer_plugin>();
+      app().register_plugin<chain_plugin>();
+
+      if(!app().initialize<chain_plugin, http_plugin, net_plugin>(argc, argv))
+         return -1;
+      app().startup();
+      app().exec();
+
+5、插件需要在程序外部的 config.ini 中启用，不然的话程序中注册的插件不会运行。
+
+插件启用控制的代码：
+application::initialize_impl
+
+   if(options.count("plugin") > 0)
+   {
+      auto plugins = options.at("plugin").as<std::vector<std::string>>();
+      for(auto& arg : plugins)
+      {
+         vector<string> names;
+         boost::split(names, arg, boost::is_any_of(" \t,"));
+         for(const std::string& name : names)
+            get_plugin(name).initialize(options);
+      }
+   }
+   for (auto plugin : autostart_plugins)
+      if (plugin != nullptr && plugin->get_state() == abstract_plugin::registered)
+         plugin->initialize(options);
+
+表示两个限制条件：1、需要在配置文件中启用plugin 2、插件需要在程序中注册。
+
+自己增加插件注意事项：
+
+我在windows上用vs2015编译的EOS插件系统，在测试代码中增加了插件 producer_chain，发现调用不了。
+调试之后发现，插件函数 get_plugin(name) 获取的插件名是 "class producer_chain"，
+把 "producer_chain" 或 "class producer_chain" 加入到 config.ini 的 plugin 字段中，是无法加载的。
+
+问题是在这个解析里：
+         boost::split(names, arg, boost::is_any_of(" \t,")); // 按照空格、Tab、逗号分割字符串。
+         for(const std::string& name : names)
+            get_plugin(name).initialize(options);
+
+修改了application.cpp中的代码，在 get_plugin 的参数 name 前面加上字符串 "class "，
+
+         for(const std::string& name : names)
+		 { 
+            get_plugin("class " + name).initialize(options);
+		 }
+
+这样插件就正常加载运行了：
+enter...
+producer options
+initialize producer plugin
+starting producer plugin
+
+
+最后，开启3个测试的插件，注册、初始化、启动的顺序如下：
+plugin=eos::producer_plugin,eos::net_plugin,eos::chain_plugin
+
+enter...
+chain_plugin options
+net_plugin options
+producer options
+initialize producer plugin
+initialize chain plugin
+initialize net plugin
+starting producer plugin
+starting chain plugin
+starting net plugin
+
+
+插件系统例子vs2015代码：
+代码路径：D:\myworkcode\EOS\lib\appbase-master\examples\main.cpp
+
+#include <appbase/application.hpp>
+#include <iostream>
+#include <boost/exception/diagnostic_information.hpp>
+
+struct database { };
+
+namespace bpo = boost::program_options;
+
+using bpo::options_description;
+using bpo::variables_map;
+using std::string;
+using std::vector;
+
+namespace eos {
+
+	class chain_plugin : public appbase::plugin<chain_plugin>
+	{
+	public:
+		APPBASE_PLUGIN_REQUIRES();
+
+		virtual void set_program_options(options_description& cli, options_description& cfg) override
+		{
+			cfg.add_options()
+				("readonly", "open the database in read only mode")
+				("dbsize", bpo::value<uint64_t>()->default_value(8 * 1024), "Minimum size MB of database shared memory file")
+				;
+			cli.add_options()
+				("replay", "clear chain database and replay all blocks")
+				("reset", "clear chain database and block log")
+				;
+
+			std::cout << "chain_plugin options\n";
+		}
+
+		void plugin_initialize(const variables_map& options)
+		{
+			std::cout << "initialize chain plugin\n";
+		}
+		void plugin_startup() { std::cout << "starting chain plugin \n"; }
+		void plugin_shutdown() { std::cout << "shutdown chain plugin \n"; }
+
+		database& db() { return _db; }
+
+	private:
+		database _db;
+	};
+
+
+	class net_plugin : public appbase::plugin<net_plugin>
+	{
+	public:
+		net_plugin() {};
+		~net_plugin() {};
+
+		APPBASE_PLUGIN_REQUIRES((chain_plugin));
+
+		virtual void set_program_options(options_description& cli, options_description& cfg) override
+		{
+			cfg.add_options()
+				("listen-endpoint", bpo::value<string>()->default_value("127.0.0.1:9876"), "The local IP address and port to listen for incoming connections.")
+				("remote-endpoint", bpo::value< vector<string> >()->composing(), "The IP address and port of a remote peer to sync with.")
+				("public-endpoint", bpo::value<string>()->default_value("0.0.0.0:9876"), "The public IP address and port that should be advertized to peers.")
+				;
+			std::cout << "net_plugin options\n";
+		}
+
+		void plugin_initialize(const variables_map& options)
+		{
+			std::cout << "initialize net plugin\n";
+		}
+		void plugin_startup() { std::cout << "starting net plugin \n"; }
+		void plugin_shutdown() { std::cout << "shutdown net plugin \n"; }
+
+	};
+
+class producer_plugin : public appbase::plugin<producer_plugin>
+{
+public:
+	producer_plugin() {}
+	~producer_plugin(){}
+	APPBASE_PLUGIN_REQUIRES();
+
+	virtual void set_program_options(options_description& cli, options_description& cfg) override
+	{
+		cfg.add_options()
+			("producer-endpoint", bpo::value<string>()->default_value("127.0.0.1:9876"), "The local IP address and port to listen for incoming connections.")
+			("producer-endpoint", bpo::value< vector<string> >()->composing(), "The IP address and port of a remote peer to sync with.")
+			("producer-endpoint", bpo::value<string>()->default_value("0.0.0.0:9876"), "The public IP address and port that should be advertized to peers.")
+			;
+		std::cout << "producer options\n";
+	}
+
+	void plugin_initialize(const variables_map& options)
+	{
+		std::cout << "initialize producer plugin\n";
+	}
+	void plugin_startup() 
+	{ 
+		std::cout << "starting producer plugin \n"; 
+	}
+	void plugin_shutdown() 
+	{ 
+		std::cout << "shutdown producer plugin \n"; 
+	}
+
+};
+
+} // end of eos
+
+using namespace appbase;
+using namespace eos;
+
+int main( int argc, char** argv ) {
+	
+
+	std::cout << "https://github.com/eosjacker/eosvs2015\n";
+	std::cout << "enter...\n";
+
+	try {
+	  //test
+      appbase::app().register_plugin<producer_plugin>();
+	  appbase::app().register_plugin<net_plugin>();
+	  appbase::app().register_plugin<chain_plugin>();
+
+	  // eosd
+	  appbase::app().register_plugin<http_plugin>();
+
+      if( !appbase::app().initialize( argc, argv ) )
+         return -1;
+      appbase::app().startup();
+      appbase::app().exec();
+
+	  std::cout << "\n\nplease visit http://127.0.0.1:8888\n";
+
+   } catch ( const boost::exception& e ) {
+      std::cerr << boost::diagnostic_information(e) << "\n";
+   } catch ( const std::exception& e ) {
+      std::cerr << e.what() << "\n";
+   } catch ( ... ) {
+      std::cerr << "unknown exception\n";
+   }
+   std::cout << "exited cleanly\n";
+   return 0;
+}
+
+代码运行结果 eosd.exe：
+https://github.com/eosjacker/eosvs2015
+enter...
+chain_plugin options
+http-server-endpoint 127.0.0.1:8888
+net_plugin options
+producer options
+initialize producer plugin
+initialize chain plugin
+initialize net plugin
+starting producer plugin
+starting chain plugin
+starting net plugin
+start processing http thread
+start listening for http requests
+
+在浏览器中输入 http://127.0.0.1:8888 进入 webserver 处理:
+handle http request: ${url}
+${body}
+404 - not found: ${ep}
+
+
+
+
+
+
+
