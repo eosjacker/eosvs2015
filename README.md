@@ -1,26 +1,27 @@
 # eosvs2015
 
-EOSÔ´´úÂëÔÚ windows7 vs2015 ÉÏ±àÒëÑ§Ï°¹ý³Ì
+EOSæºä»£ç åœ¨ windows7 vs2015 ä¸Šç¼–è¯‘å­¦ä¹ è¿‡ç¨‹
+=
+QQï¼š1976809060<br>
+QQè®¨è®ºç¾¤ï¼š597400078<br>
+emailï¼šEOSJacker@gmail.com<br>
+è¯´æ˜Žï¼šæ¬¢è¿Žæœ‰å…´è¶£è€…ä¸€èµ·äº¤æµå­¦ä¹ ã€‚<br>
 
-QQ£º1976809060
-QQÌÖÂÛÈº£º597400078
-email£ºEOSJacker@gmail.com
-ËµÃ÷£º»¶Ó­ÓÐÐËÈ¤ÕßÒ»Æð½»Á÷Ñ§Ï°¡£
-
-×¢£º
-windows vs2015Ô´´úÂë¿ÉÒÔÖ±½Ó¿´ eosd_L3_httpplugin_websocketpp¡£
-
-Ç°Ãæ Lession2 ÓÐ²»ÉÙÎÒ×Ô¼ºµÄ³õÊ¼¿ìËÙµ÷ÊÔ£¬Ïàµ±ÓÚÒ»¸ö²Ý¸å¹¤³Ì£¬ÀïÃæµÄÒ»Ð©¿âÅäÖÃÊÇ¾ø¶ÔÂ·¾¶¡£
-eosd_L3_httpplugin_websocketpp Õâ¸ö¹¤³ÌµÄÅäÖÃ±È½ÏÁé»îÁË¡£
-
-L1¡¢ÔÚubunbu16.04x64ÉÏ±àÒëEOSµ¥»ú°æ.txt
-L2¡¢EOS²å¼þÏµÍ³appbaseÔÚ win7 vs2015ÉÏ±àÒëÔËÐÐ
-L3¡¢EOS²å¼þhttp_pluginºÍµÚÈý·½¿âwebsocketppÔÚ win7 vs2015ÉÏ±àÒëÔËÐÐ.txt
-L4¡¢EOSµÚÈý·½¿âfcÔÚ win7 vs2015ÉÏ±àÒëÔËÐÐ.txt
-
-
+æ³¨ï¼š<br>
+windows vs2015æºä»£ç å¯ä»¥ç›´æŽ¥çœ‹ eosd_L3_httpplugin_websocketppã€‚<br>
+å‰é¢ Lession2 æœ‰ä¸å°‘æˆ‘è‡ªå·±çš„åˆå§‹å¿«é€Ÿè°ƒè¯•ï¼Œç›¸å½“äºŽä¸€ä¸ªè‰ç¨¿å·¥ç¨‹ï¼Œé‡Œé¢çš„ä¸€äº›åº“é…ç½®æ˜¯ç»å¯¹è·¯å¾„ã€‚<br>
+eosd_L3_httpplugin_websocketpp è¿™ä¸ªå·¥ç¨‹çš„é…ç½®æ¯”è¾ƒçµæ´»äº†ã€‚<br><br>
+  
+L1ã€åœ¨ubunbu16.04x64ä¸Šç¼–è¯‘EOSå•æœºç‰ˆ.txt
+-------
+L2ã€EOSæ’ä»¶ç³»ç»Ÿappbaseåœ¨ win7 vs2015ä¸Šç¼–è¯‘è¿è¡Œ.txt
+-------
+L3ã€EOSæ’ä»¶http_pluginå’Œç¬¬ä¸‰æ–¹åº“websocketppåœ¨ win7 vs2015ä¸Šç¼–è¯‘è¿è¡Œ.txt
+-------  
+L4ã€EOSç¬¬ä¸‰æ–¹åº“fcåœ¨ win7 vs2015ä¸Šç¼–è¯‘è¿è¡Œ.txt
+-------  
 
 Donation Address:
-ETH: 0x7e32B9586D74CE2878819b732ee70d2F74cd5332
-EOS: 0x7e32B9586D74CE2878819b732ee70d2F74cd5332
-
+-------<br>
+ETH: 0x7e32B9586D74CE2878819b732ee70d2F74cd5332<br>
+EOS: 0x7e32B9586D74CE2878819b732ee70d2F74cd5332<br>
